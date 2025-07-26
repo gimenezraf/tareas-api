@@ -1,6 +1,22 @@
 from pydantic import BaseModel
 from typing import Optional
 from datetime import date
+from datetime import datetime
+from pydantic import BaseModel
+from typing import Optional
+
+class HistorialTareaCreate(BaseModel):
+    descripcion: str
+    fecha: Optional[datetime] = None
+
+class HistorialTareaResponse(BaseModel):
+    id: int
+    tarea_id: int
+    descripcion: str
+    fecha: datetime
+
+    class Config:
+        orm_mode = True
 
 class TareaBase(BaseModel):
     cliente: str
