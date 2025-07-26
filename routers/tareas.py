@@ -38,7 +38,7 @@ def actualizar_tarea(tarea_id: int, tarea: schemas.TareaCreate, db: Session = De
         raise HTTPException(status_code=404, detail="Tarea no encontrada")
     return tarea_actualizada
 
-    @router.get("/tareas/{tarea_id}", response_model=schemas.Tarea)
+@router.get("/tareas/{tarea_id}", response_model=schemas.Tarea)
 def obtener_tarea_por_id(tarea_id: int, db: Session = Depends(get_db)):
     tarea = crud.obtener_tarea(db, tarea_id=tarea_id)
     if tarea is None:
