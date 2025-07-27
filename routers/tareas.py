@@ -52,17 +52,8 @@ def obtener_tarea_por_id(tarea_id: int, db: Session = Depends(get_db)):
 
 @router.get("/tareas/{tarea_id}/historial", response_model=List[HistorialTareaResponse])
 def obtener_historial(tarea_id: int, db: Session = Depends(get_db)):
-    historial = db.query(HistorialTarea).filter(HistorialTarea.tarea_id == tarea_id).order_by(HistorialTarea.fecha.desc()).all()
-    return historial
+    return crud.obtener_historial(db, tarea_id)
 
 @router.post("/tareas/{tarea_id}/historial", response_model=HistorialTareaResponse)
 def agregar_historial(tarea_id: int, entrada: HistorialTareaCreate, db: Session = Depends(get_db)):
-    tarea = db.query(Tarea).filter(Tarea.id == tarea_id).first()
-    if not tarea:
-        raise HTTPException(status_code=404, detail="Tarea no encontrada")
-
-    nuevo_evento = HistorialTarea(tarea_id=tarea_id, descripcion=entrada.descripcion, fecha=entrada.fecha or datetime.utcnow())
-    db.add(nuevo_evento)
-    db.commit()
-    db.refresh(nuevo_evento)
-    return nuevo_evento    
+    return crud.agregar_evento_historial(db, tarea_id, entrada.descripcion)

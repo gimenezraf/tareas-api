@@ -42,3 +42,6 @@ def agregar_evento_historial(db: Session, tarea_id: int, descripcion: str):
     db.commit()
     db.refresh(nuevo_evento)
     return nuevo_evento
+
+def obtener_historial(db: Session, tarea_id: int):
+    return db.query(HistorialTarea).filter(HistorialTarea.tarea_id == tarea_id).order_by(HistorialTarea.fecha.desc()).all()

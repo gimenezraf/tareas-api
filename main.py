@@ -1,26 +1,16 @@
-from fastapi import FastAPI
-from fastapi.responses import JSONResponse
-from fastapi.middleware.cors import CORSMiddleware
-from routers import tareas
+from fastapi import APIRouter, Depends
+from sqlalchemy.orm import Session
+from typing import List
+from schemas import HistorialTareaResponse, HistorialTareaCreate
+from database import get_db
+import crud
 
-class CustomJSONResponse(JSONResponse):
-    media_type = "application/json; charset=utf-8"
+router = APIRouter()
 
-origins = [
-    "https://tareas-frontend-kwhq.vercel.app",  # Dominio del frontend en Vercel
-]
+@router.get("/tareas/{tarea_id}/historial", response_model=List[HistorialTareaResponse])
+def obtener_historial(tarea_id: int, db: Session = Depends(get_db)):
+    return crud.obtener_historial(db, tarea_id)
 
-# Solo una vez se debe crear la instancia de FastAPI
-app = FastAPI(default_response_class=CustomJSONResponse)
-
-# Agregar CORS middleware
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,  # Solo permite el frontend desde Vercel
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-# Incluir el router de tareas
-app.include_router(tareas.router)
+@router.post("/tareas/{tarea_id}/historial", response_model=HistorialTareaResponse)
+def agregar_historial(tarea_id: int, entrada: HistorialTareaCreate, db: Session = Depends(get_db)):
+    return crud.agregar_evento_historial(db, tarea_id, entrada.descripcion)
