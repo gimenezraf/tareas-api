@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
-from models import Tarea
+from models import Tarea, HistorialTarea
 from schemas import TareaCreate
+from datetime import datetime
 
 def crear_tarea(db: Session, tarea: TareaCreate):
     db_tarea = Tarea(**tarea.dict())
@@ -30,3 +31,14 @@ def actualizar_tarea(db: Session, tarea_id: int, tarea_data: TareaCreate):
         db.commit()
         db.refresh(tarea)
     return tarea
+
+def agregar_evento_historial(db: Session, tarea_id: int, descripcion: str):
+    nuevo_evento = HistorialTarea(
+        tarea_id=tarea_id,
+        descripcion=descripcion,
+        fecha=datetime.utcnow()
+    )
+    db.add(nuevo_evento)
+    db.commit()
+    db.refresh(nuevo_evento)
+    return nuevo_evento
