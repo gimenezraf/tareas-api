@@ -36,4 +36,4 @@ def obtener_historial(tarea_id: int, db: Session = Depends(get_db)):
 
 @router.post("/tareas/{tarea_id}/historial", response_model=schemas.HistorialTarea)
 def agregar_historial(tarea_id: int, evento: schemas.HistorialTareaCreate, db: Session = Depends(get_db)):
-    return crud.agregar_historial(db, tarea_id, evento)
+    return crud.agregar_evento_historial(db, tarea_id, evento)
