@@ -49,9 +49,9 @@ def agregar_evento_historial(db: Session, tarea_id: int, evento: HistorialTareaC
     db.refresh(db_evento)
 
     db_tarea = db.query(Tarea).filter(Tarea.id == tarea_id).first()
-    if db_tarea and (not db_tarea.fecha_ultima_actividad or db_evento.fecha > db_tarea.fecha_ultima_actividad):
+    if db_tarea and (not db_tarea.fecha_ultima_actividad or db_evento.fecha.date() > db_tarea.fecha_ultima_actividad):
         db_tarea.ultima_actividad = db_evento.descripcion
-        db_tarea.fecha_ultima_actividad = db_evento.fecha
+        db_tarea.fecha_ultima_actividad = db_evento.fecha.date()
         db.commit()
         db.refresh(db_tarea)
 
