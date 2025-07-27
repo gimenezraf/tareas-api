@@ -18,11 +18,11 @@ def obtener_tarea(tarea_id: int, db: Session = Depends(get_db)):
     return db_tarea
 
 @router.post("/tareas", response_model=schemas.Tarea)
-def crear_tarea(tarea: schemas.TareaCrear, db: Session = Depends(get_db)):
+def crear_tarea(tarea: schemas.TareaCreate, db: Session = Depends(get_db)):
     return crud.crear_tarea(db, tarea)
 
 @router.put("/tareas/{tarea_id}", response_model=schemas.Tarea)
-def actualizar_tarea(tarea_id: int, tarea: schemas.TareaCrear, db: Session = Depends(get_db)):
+def actualizar_tarea(tarea_id: int, tarea: schemas.TareaCreate, db: Session = Depends(get_db)):
     return crud.actualizar_tarea(db, tarea_id, tarea)
 
 @router.delete("/tareas/{tarea_id}")
@@ -35,5 +35,5 @@ def obtener_historial(tarea_id: int, db: Session = Depends(get_db)):
     return crud.obtener_historial_por_tarea(db, tarea_id)
 
 @router.post("/tareas/{tarea_id}/historial", response_model=schemas.HistorialTarea)
-def agregar_historial(tarea_id: int, evento: schemas.HistorialTareaCrear, db: Session = Depends(get_db)):
+def agregar_historial(tarea_id: int, evento: schemas.HistorialTareaCreate, db: Session = Depends(get_db)):
     return crud.agregar_historial(db, tarea_id, evento)

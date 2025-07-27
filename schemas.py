@@ -14,7 +14,7 @@ class HistorialTarea(HistorialTareaBase):
     tarea_id: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class TareaBase(BaseModel):
     cliente: str
@@ -41,4 +41,4 @@ class Tarea(TareaBase):
     historial: List[HistorialTarea] = []
 
     class Config:
-        orm_mode = True
+        from_attributes = True
