@@ -9,6 +9,15 @@ def crear_tarea(db: Session, tarea: TareaCreate):
     db.add(db_tarea)
     db.commit()
     db.refresh(db_tarea)
+    # Crear automáticamente una entrada en el historial si la tarea tiene actividad inicial
+    if tarea.ultima_actividad and tarea.fecha_ultima_actividad:
+        db_evento = HistorialTarea(
+            tarea_id=db_tarea.id,
+            descripcion=tarea.ultima_actividad,
+            fecha=tarea.fecha_ultima_actividad
+        )
+        db.add(db_evento)
+        db.commit()
     return db_tarea
 
 # Obtener todas las tareas
