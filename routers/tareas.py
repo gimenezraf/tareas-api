@@ -43,12 +43,7 @@ def agregar_historial(tarea_id: int, evento: schemas.HistorialTareaCreate, db: S
 # Nuevo endpoint para editar un evento del historial
 @router.put("/historial/{evento_id}", response_model=schemas.HistorialTarea)
 def editar_historial(evento_id: int, datos: schemas.HistorialTareaCreate, db: Session = Depends(get_db)):
-    evento = db.query(HistorialTarea).filter(HistorialTarea.id == evento_id).first()
+    evento = crud.editar_evento_historial(db, evento_id, datos)
     if not evento:
         raise HTTPException(status_code=404, detail="Evento no encontrado")
-
-    evento.descripcion = datos.descripcion
-    evento.fecha = datos.fecha
-    db.commit()
-    db.refresh(evento)
     return evento
