@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from database import get_db
 import crud
 import schemas
+from models import HistorialTarea
 
 router = APIRouter()
 
@@ -42,7 +43,7 @@ def agregar_historial(tarea_id: int, evento: schemas.HistorialTareaCreate, db: S
 # Nuevo endpoint para editar un evento del historial
 @router.put("/historial/{evento_id}", response_model=schemas.HistorialTarea)
 def editar_historial(evento_id: int, datos: schemas.HistorialTareaCreate, db: Session = Depends(get_db)):
-    evento = db.query(crud.models.HistorialTarea).filter(crud.models.HistorialTarea.id == evento_id).first()
+    evento = db.query(HistorialTarea).filter(HistorialTarea.id == evento_id).first()
     if not evento:
         raise HTTPException(status_code=404, detail="Evento no encontrado")
 
