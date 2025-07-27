@@ -85,15 +85,15 @@ def editar_evento_historial(db: Session, evento_id: int, datos: HistorialTareaCr
     db.commit()
     db.refresh(evento)
 
-    # Actualizar la tarea si este evento es ahora el más reciente
     db_tarea = db.query(Tarea).filter(Tarea.id == evento.tarea_id).first()
+    # Buscar el evento más reciente para actualizar la última actividad de la tarea
     evento_mas_reciente = db.query(HistorialTarea).filter(
         HistorialTarea.tarea_id == evento.tarea_id
     ).order_by(HistorialTarea.fecha.desc()).first()
 
-    if db_tarea and evento_mas_reciente and evento_mas_reciente.id == evento.id:
-        db_tarea.ultima_actividad = evento.descripcion
-        db_tarea.fecha_ultima_actividad = evento.fecha
+    if db_tarea and evento_mas_reciente:
+        db_tarea.ultima_actividad = evento_mas_reciente.descripcion
+        db_tarea.fecha_ultima_actividad = evento_mas_reciente.fecha
         db.commit()
         db.refresh(db_tarea)
 
