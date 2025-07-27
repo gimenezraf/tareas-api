@@ -1,8 +1,9 @@
 from sqlalchemy.orm import Session
 from models import Tarea, HistorialTarea
-from schemas import TareaCreate
+from schemas import TareaCreate, TareaUpdate, HistorialTareaCreate
 from datetime import datetime
 
+# Crear una nueva tarea
 def crear_tarea(db: Session, tarea: TareaCreate):
     db_tarea = Tarea(**tarea.dict())
     db.add(db_tarea)
@@ -10,38 +11,49 @@ def crear_tarea(db: Session, tarea: TareaCreate):
     db.refresh(db_tarea)
     return db_tarea
 
-def obtener_tareas(db: Session, skip: int = 0, limit: int = 100):
-    return db.query(Tarea).offset(skip).limit(limit).all()
+# Obtener todas las tareas
+def obtener_todas_las_tareas(db: Session):
+    return db.query(Tarea).all()
 
-def obtener_tarea(db: Session, tarea_id: int):
+# Obtener una tarea por ID
+def obtener_tarea_por_id(db: Session, tarea_id: int):
     return db.query(Tarea).filter(Tarea.id == tarea_id).first()
 
+# Actualizar una tarea
+def actualizar_tarea(db: Session, tarea_id: int, tarea: TareaUpdate):
+    db_tarea = db.query(Tarea).filter(Tarea.id == tarea_id).first()
+    if db_tarea:
+        for key, value in tarea.dict(exclude_unset=True).items():
+            setattr(db_tarea, key, value)
+        db.commit()
+        db.refresh(db_tarea)
+    return db_tarea
+
+# Eliminar una tarea
 def eliminar_tarea(db: Session, tarea_id: int):
-    tarea = obtener_tarea(db, tarea_id)
-    if tarea:
-        db.delete(tarea)
+    db_tarea = db.query(Tarea).filter(Tarea.id == tarea_id).first()
+    if db_tarea:
+        db.delete(db_tarea)
         db.commit()
-    return tarea
+    return db_tarea
 
-def actualizar_tarea(db: Session, tarea_id: int, tarea_data: TareaCreate):
-    tarea = db.query(Tarea).filter(Tarea.id == tarea_id).first()
-    if tarea:
-        for key, value in tarea_data.dict().items():
-            setattr(tarea, key, value)
-        db.commit()
-        db.refresh(tarea)
-    return tarea
-
-def agregar_evento_historial(db: Session, tarea_id: int, descripcion: str):
-    nuevo_evento = HistorialTarea(
+# Agregar evento al historial
+def agregar_evento_historial(db: Session, tarea_id: int, evento: HistorialTareaCreate):
+    db_evento = HistorialTarea(
         tarea_id=tarea_id,
-        descripcion=descripcion,
-        fecha=datetime.utcnow()
+        descripcion=evento.descripcion,
+        fecha=evento.fecha or datetime.utcnow()
     )
-    db.add(nuevo_evento)
+    db.add(db_evento)
     db.commit()
-    db.refresh(nuevo_evento)
-    return nuevo_evento
+    db.refresh(db_evento)
+    return db_evento
 
-def obtener_historial(db: Session, tarea_id: int):
-    return db.query(HistorialTarea).filter(HistorialTarea.tarea_id == tarea_id).order_by(HistorialTarea.fecha.desc()).all()
+# Obtener historial por tarea
+def obtener_historial_por_tarea(db: Session, tarea_id: int):
+    return (
+        db.query(HistorialTarea)
+        .filter(HistorialTarea.tarea_id == tarea_id)
+        .order_by(HistorialTarea.fecha.desc())
+        .all()
+    )
