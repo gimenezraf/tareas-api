@@ -1,5 +1,7 @@
-from fastapi import FastAPI
-from routers import tareas
+from fastapi import APIRouter
 
-app = FastAPI()
-app.include_router(tareas.router)
+router = APIRouter()
+
+@router.get("/ping")
+def ping():
+    return {"message": "pong"}
