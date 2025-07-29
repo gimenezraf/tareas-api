@@ -4,6 +4,8 @@ from database import get_db
 import crud
 import schemas
 from models import HistorialTarea
+from datetime import timedelta
+from crud import sumar_dias_habiles_uy, sumar_dias_corridos
 
 router = APIRouter()
 
@@ -37,7 +39,8 @@ def obtener_historial(tarea_id: int, db: Session = Depends(get_db)):
 
 @router.post("/tareas/{tarea_id}/historial", response_model=schemas.HistorialTarea)
 def agregar_historial(tarea_id: int, evento: schemas.HistorialTareaCreate, db: Session = Depends(get_db)):
-    return crud.agregar_evento_historial(db, tarea_id, evento)
+    db_evento = crud.agregar_evento_historial(db, tarea_id, evento)
+    return db_evento
 
 
 # Nuevo endpoint para editar un evento del historial
