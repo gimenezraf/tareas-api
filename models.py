@@ -12,6 +12,7 @@ class Tarea(Base):
     cliente = Column(String, nullable=True)
     descripcion = Column(String)
     asunto = Column(String, nullable=True)
+    tarea_pendiente = Column(String, nullable=True)
     estructura_procesal = Column(String, nullable=True)
     rol_procesal = Column(String, nullable=True)
     sede_judicial = Column(String, nullable=True)
