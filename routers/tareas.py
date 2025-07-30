@@ -40,6 +40,31 @@ def obtener_historial(tarea_id: int, db: Session = Depends(get_db)):
 @router.post("/tareas/{tarea_id}/historial", response_model=schemas.HistorialTarea)
 def agregar_historial(tarea_id: int, evento: schemas.HistorialTareaCreate, db: Session = Depends(get_db)):
     db_evento = crud.agregar_evento_historial(db, tarea_id, evento)
+
+    # Si el evento agregado tiene una etapa procesal reconocida dentro de la estructura,
+    # actualizar el nombre de la tarea y su fecha límite
+    tarea = crud.obtener_tarea_por_id(db, tarea_id)
+    if tarea and tarea.estructura_procesal:
+        from estructuras import estructuras_procesales
+        etapas = estructuras_procesales.get(tarea.estructura_procesal.lower())
+        if etapas:
+            for etapa in etapas:
+                if etapa["nombre"].lower() in (evento.descripcion or "").lower():
+                    fecha_base = evento.fecha
+                    if etapa["tipo_plazo"] == "habiles":
+                        nueva_fecha_limite = crud.sumar_dias_habiles_uy(fecha_base, etapa["plazo"])
+                    else:
+                        nueva_fecha_limite = crud.sumar_dias_corridos(fecha_base, etapa["plazo"])
+                    tarea.fecha_limite_acto = nueva_fecha_limite
+                    tarea.etapa_procesal = etapa["nombre"]
+                    evento.fecha_limite = nueva_fecha_limite
+                    db.add(tarea)
+                    db.add(db_evento)
+                    db.commit()
+                    db.refresh(tarea)
+                    db.refresh(db_evento)
+                    break
+
     return db_evento
 
 
