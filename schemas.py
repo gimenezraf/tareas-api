@@ -24,7 +24,6 @@ class TareaBase(BaseModel):
     cliente: Optional[str] = None
     descripcion: str
     asunto: Optional[str] = None
-    tarea_pendiente: Optional[str] = None
     estructura_procesal: Optional[str] = None
     rol_procesal: Optional[str] = None
     sede_judicial: Optional[str] = None
