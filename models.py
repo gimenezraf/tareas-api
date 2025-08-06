@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Date, ForeignKey
+from sqlalchemy import Column, Integer, String, Date, ForeignKey, Boolean
 from sqlalchemy.orm import relationship, declarative_base
 from datetime import date
 
@@ -22,6 +22,8 @@ class Tarea(Base):
     fecha_limite_acto = Column(Date, nullable=True)
     etapa_procesal = Column(String, nullable=True)
     fecha_formalizacion = Column(Date, nullable=True)
+    iue = Column(String, nullable=True)
+    nunc = Column(String, nullable=True)
 
     historial = relationship("HistorialTarea", back_populates="tarea", cascade="all, delete-orphan")
 
@@ -35,5 +37,6 @@ class HistorialTarea(Base):
     fecha = Column(Date)
     etapa_procesal = Column(String, nullable=True)
     fecha_limite = Column(Date, nullable=True)
+    requiere_retiro_copias = Column(Boolean, default=False)
 
     tarea = relationship("Tarea", back_populates="historial")
