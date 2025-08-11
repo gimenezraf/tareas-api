@@ -42,27 +42,25 @@ def agregar_historial(tarea_id: int, evento: schemas.HistorialTareaCreate, db: S
     db_evento = crud.agregar_evento_historial(db, tarea_id, evento)
 
     # Si el evento agregado tiene una etapa procesal reconocida dentro de la estructura,
-    # actualizar el nombre de la tarea y su fecha límite
+    # actualizar la fecha límite de la tarea en función del tipo de plazo
     tarea = crud.obtener_tarea_por_id(db, tarea_id)
     if tarea and tarea.estructura_procesal:
         from estructuras import estructuras_procesales
-        etapas = estructuras_procesales.get(tarea.estructura_procesal.lower())
+        etapas = estructuras_procesales.get((tarea.estructura_procesal or "").lower())
         if etapas:
             for etapa in etapas:
-                if etapa["nombre"].lower() in (evento.descripcion or "").lower():
-                    fecha_base = evento.fecha
-                    if etapa["tipo_plazo"] == "habiles":
-                        nueva_fecha_limite = crud.sumar_dias_habiles_uy(fecha_base, etapa["plazo"])
+                if etapa["etapa"].lower() in (db_evento.descripcion or "").lower():
+                    fecha_base = db_evento.fecha_registro
+                    tipo_plazo = (etapa.get("tipo_plazo") or "").lower()
+                    plazo = int(etapa.get("plazo_dias", 0))
+                    if tipo_plazo in ("hábiles", "habiles"):
+                        nueva_fecha_limite = crud.sumar_dias_habiles_uy(fecha_base, plazo)
                     else:
-                        nueva_fecha_limite = crud.sumar_dias_corridos(fecha_base, etapa["plazo"])
-                    tarea.fecha_limite_acto = nueva_fecha_limite
-                    tarea.etapa_procesal = etapa["nombre"]
-                    evento.fecha_limite = nueva_fecha_limite
+                        nueva_fecha_limite = crud.sumar_dias_corridos(fecha_base, plazo)
+                    tarea.fecha_limite = nueva_fecha_limite
                     db.add(tarea)
-                    db.add(db_evento)
                     db.commit()
                     db.refresh(tarea)
-                    db.refresh(db_evento)
                     break
 
     return db_evento
